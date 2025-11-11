@@ -1,0 +1,75 @@
+<div class="calendar-container">
+  <div class="calendar-header">
+    <button (click)="prevMonth()">❮</button>
+    <h2>{{ currentDate | date: 'MMMM yyyy' }}</h2>
+    <button (click)="nextMonth()">❯</button>
+  </div>
+
+  <div class="calendar-weekdays">
+    <div *ngFor="let day of ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']" class="weekday">
+      {{ day }}
+    </div>
+  </div>
+
+  <div class="calendar-weeks">
+    <div class="week" *ngFor="let week of weeks">
+      <div class="day"
+      [class.today]="day && day.toDateString() === today"
+      *ngFor="let day of week"
+           (click)="openForm(day)">
+        <div *ngIf="day" class="date">{{ day.getDate() }}</div>
+        <div *ngFor="let e of getEvents(day)"
+        class="event"
+        [style.background]="e.color"
+        (click)="editEvent(e, $event)">
+     <span>{{ e.title }}</span>
+   </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Event Modal -->
+  <div class="modal-backdrop" *ngIf="showForm">
+    <div class="modal">
+      <h3>{{ editingEvent ? 'Edit Event' : 'Add Event' }} ({{ selectedDate }})</h3>
+
+      <form [formGroup]="form" (ngSubmit)="saveEvent()">
+        <label>Title</label>
+        <input formControlName="title" placeholder="Event title" />
+
+        <div class="time-row">
+          <div>
+            <label>Start</label>
+            <input type="time" formControlName="startTime" />
+          </div>
+          <div>
+            <label>End</label>
+            <input type="time" formControlName="endTime" />
+          </div>
+        </div>
+
+        <label>Category</label>
+        <select formControlName="category">
+          <option>Meeting</option>
+          <option>Personal</option>
+          <option>Work</option>
+        </select>
+
+        <div class="modal-actions">
+          <button type="submit" class="save-btn">Save</button>
+          <button type="button" class="cancel-btn" (click)="showForm=false">Cancel</button>
+          <button  type="button" class="delete-btn" (click)="deleteEvent()">Delete</button>
+
+        </div>
+      </form>
+
+      <!-- Suggestions -->
+      <div *ngIf="suggestions.length" class="suggestions">
+        <h4>Suggested Slots:</h4>
+        <button *ngFor="let s of suggestions" (click)="applySuggestion(s)">
+          {{ s.startTime | date:'shortTime' }} - {{ s.endTime | date:'shortTime' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
